@@ -1,0 +1,35 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+# ---Common --- #
+friendly_name_prefix = "<acme-egress>" #This should be unique across all deployments
+common_labels = {
+  app        = "<boundary-worker>"
+  env        = "<sandbox>"
+  owner      = "<yourname>"
+  workertype = "<egress>"
+}
+
+# --- prereqs --- #
+project_id = "<project-id>"
+region     = "<us-east1>"
+
+# ---Boundary configuration settings --- #
+boundary_version        = "<0.17.1+ent>"
+instance_count          = <1>
+boundary_upstream       = [<"10.0.0.10">] #The IP of the upstream Boundary Controller Worker Proxy LB
+boundary_upstream_port  = "<9202>" #Typically 9201 if upstream is Boundary Controller, 9202 if upstream is Worker
+key_ring_name           = "<key-ring-containing-worker-key>" 
+key_name                = "<worker-key-name>"
+
+# --- Networking --- #
+vpc                     = "<my-vpc-name>"
+subnet_name             = "<my-subnet-name>"
+cidr_ingress_9202_allow = ["<other-boundary-workers>"]
+worker_is_internal      =  <true>
+create_lb               =  <false>
+
+# --- Compute --- #
+enable_iap     = <true>
+instance_count = <1>
+

@@ -1,0 +1,32 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+# ---Common --- #
+friendly_name_prefix = "<hcp>" #This should be unique across all deployments
+common_labels = {
+  app        = "<boundary-worker>"
+  env        = "<sandbox>"
+  owner      = "<yourname>"
+  workertype = "<egress>"
+}
+
+# --- prereqs --- #
+project_id = "<project-id>"
+region     = "<us-east1>"
+
+# ---Boundary configuration settings --- #
+boundary_version        = "<0.17.1+ent>"
+instance_count          = <1>
+hcp_boundary_cluster_id = "<hcp-boundary-cluster-id>"
+
+# --- Networking --- #
+vpc                     = "<my-vpc-name>"
+subnet_name             = "<my-subnet-name>"
+cidr_ingress_9202_allow = ["<other-boundary-workers>"]
+worker_is_internal      =  <true>
+create_lb               =  <false>
+
+# --- Compute --- #
+enable_iap     = <true>
+instance_count = <1>
+
