@@ -1,6 +1,6 @@
-# Boundary Worker on Google
+# Boundary Enterprise Worker HVD on GCP GCE
 
-Terraform module used by HashiCorp Professional Services to deploy Boundary Worker on Google. For deploying workers, please see the [Boundary Workers on Google](https://github.com/hashicorp-services/terraform-google-boundary-worker) module. Prior to deploying in production, the code should be reviewed, potentially tweaked/customized, and tested in a non-production environment.
+Terraform module aligned with HashiCorp Validated Designs (HVD) to deploy Boundary Enterprise Worker(s) on Google Cloud Platform (GCP) using Compute Engine instances. This module is designed to work with the complimentary [Boundary Enterprise Controller HVD on GCP GCE](https://github.com/hashicorp/terraform-google-boundary-enterprise-controller-hvd) module.
 
 <!-- ## Boundary Architecture
 
@@ -42,149 +42,151 @@ One of the following mechanisms for shell access to Boundary VM instances:
 
 ### Boundary
 
-Unless deploying a Boundary HCP Worker, a Boundary Cluster deployed using this module, [terraform-google-boundary-enterprise-controller-hvd](https://registry.terraform.io/modules/hashicorp/boundary-enterprise-controller-hvd/google/latest)
+Unless deploying a Boundary HCP Worker, you will require a Boundary Enterprise Cluster deployed using the [Boundary Enterprise Controller HVD on GCP GCE](https://github.com/hashicorp/terraform-google-boundary-enterprise-controller-hvd) module.
 
 ## Usage - Boundary Enterprise
 
 1. Create/configure/validate the applicable [prerequisites](#prerequisites).
 
-2. Nested within the [examples](./examples/) directory are subdirectories that contain ready-made Terraform configurations of example scenarios for how to call and deploy this module. To get started, choose an example scenario. If you are not sure which example scenario to start with, then we recommend starting with the [ingress](examples/ingress) example.
+1. Nested within the [examples](./examples/) directory are subdirectories that contain ready-made Terraform configurations of example scenarios for how to call and deploy this module. To get started, choose an example scenario. If you are not sure which example scenario to start with, then we recommend starting with the [ingress](examples/ingress) example.
+
     >📝 Note: The `friendly_name_prefix` variable should be unique for every agent deployment.
 
-3. Copy all of the Terraform files from your example scenario of choice into a new destination directory to create your root Terraform configuration that will manage your Boundary deployment. If you are not sure where to create this new directory, it is common for us to see users create an `environments/` directory at the root of this repo, and then a subdirectory for each Boundary instance deployment, like so:
+1. Copy all of the Terraform files from your example scenario of choice into a new destination directory to create your root Terraform configuration that will manage your Boundary deployment. If you are not sure where to create this new directory, it is common for us to see users create an `environments/` directory at the root of this repo, and then a subdirectory for each Boundary instance deployment, like so:
 
-```sh
-.
-└── environments
-    ├── production
-    │   ├── backend.tf
-    │   ├── main.tf
-    │   ├── outputs.tf
-    │   ├── terraform.tfvars
-    │   └── variables.tf
-    └── sandbox
-        ├── backend.tf
-        ├── main.tf
-        ├── outputs.tf
-        ├── terraform.tfvars
-        └── variables.tf
-```
+    ```sh
+    .
+    └── environments
+        ├── production
+        │   ├── backend.tf
+        │   ├── main.tf
+        │   ├── outputs.tf
+        │   ├── terraform.tfvars
+        │   └── variables.tf
+        └── sandbox
+            ├── backend.tf
+            ├── main.tf
+            ├── outputs.tf
+            ├── terraform.tfvars
+            └── variables.tf
+    ```
 
-  >📝 Note: in this example, the user will have two separate Boundary deployments; one for their `sandbox` environment, and one for their `production` environment. This is recommended, but not required.
+    >📝 Note: in this example, the user will have two separate Boundary deployments; one for their `sandbox` environment, and one for their `production` environment. This is recommended, but not required.
 
-4. (Optional) Uncomment and update the [gcs remote state backend](https://developer.hashicorp.com/terraform/language/settings/backends/gcs) configuration provided in the `backend.tf` file with your own custom values. While this step is highly recommended, it is technically not required to use a remote backend config for your Boundary deployment.
+1. (Optional) Uncomment and update the [gcs remote state backend](https://developer.hashicorp.com/terraform/language/settings/backends/gcs) configuration provided in the `backend.tf` file with your own custom values. While this step is highly recommended, it is technically not required to use a remote backend config for your Boundary deployment.
 
-5. Populate your own custom values into the `terraform.tfvars.example` file that was provided, and remove the `.example` file extension such that the file is now named `terraform.tfvars`.
+1. Populate your own custom values into the `terraform.tfvars.example` file that was provided, and remove the `.example` file extension such that the file is now named `terraform.tfvars`.
 
-6. Navigate to the directory of your newly created Terraform configuration for your Boundary Worker deployment, and run `terraform init`, `terraform plan`, and `terraform apply`.
+1. Navigate to the directory of your newly created Terraform configuration for your Boundary Worker deployment, and run `terraform init`, `terraform plan`, and `terraform apply`.
 
-7. After your `terraform apply` finishes successfully, you can monitor the installation progress by connecting to your Boundary VM instance shell via SSH or Google IAP and observing the cloud-init (user_data) logs:
+1. After your `terraform apply` finishes successfully, you can monitor the installation progress by connecting to your Boundary VM instance shell via SSH or Google IAP and observing the cloud-init (user_data) logs:
 
-  Higher-level logs:
+    Higher-level logs:
 
-  ```sh
-  tail -f /var/log/boundary-cloud-init.log
-  ```
+    ```sh
+    tail -f /var/log/boundary-cloud-init.log
+    ```
 
-  Lower-level logs:
+    Lower-level logs:
 
-  ```sh
-  journalctl -xu cloud-final -f
-  ```
+    ```sh
+    journalctl -xu cloud-final -f
+    ```
 
-  >📝 Note: the `-f` argument is to follow the logs as they append in real-time, and is optional. You may remove the `-f` for a static view.
+    >📝 Note: the `-f` argument is to follow the logs as they append in real-time, and is optional. You may remove the `-f` for a static view.
 
-  The log files should display the following message after the cloud-init (user_data) script finishes successfully:
+    The log files should display the following message after the cloud-init (user_data) script finishes successfully:
 
-  ```sh
-  [INFO] boundary_custom_data script finished successfully!
-  ```
+    ```sh
+    [INFO] boundary_custom_data script finished successfully!
+    ```
 
-8.  Once the cloud-init script finishes successfully, while still connected to the VM via SSH you can check the status of the boundary service:
+1. Once the cloud-init script finishes successfully, while still connected to the VM via SSH you can check the status of the boundary service:
 
-   ```sh
-   sudo systemctl status boundary
-   ```
+    ```sh
+    sudo systemctl status boundary
+    ```
 
-9. After the Boundary Worker is deployed the Boundary worker should show up in the Boundary Clusters workers
+1. After the Boundary Worker is deployed the Boundary worker should show up in the Boundary Clusters workers
 
 ## Usage - HCP Boundary
 
 1. In HCP Boundary go to `Workers` and start creating a new worker. Copy the `Boundary Cluster ID`.
 
-2. Create/configure/validate the applicable [prerequisites](#prerequisites).
+1. Create/configure/validate the applicable [prerequisites](#prerequisites).
 
-3. Nested within the [examples](./examples/) directory are subdirectories that contain ready-made Terraform configurations of example scenarios for how to call and deploy this module. To get started, choose an example scenario. If you are not sure which example scenario to start with, then we recommend starting with the [default](examples/default) example. 
+1. Nested within the [examples](./examples/) directory are subdirectories that contain ready-made Terraform configurations of example scenarios for how to call and deploy this module. To get started, choose an example scenario. If you are not sure which example scenario to start with, then we recommend starting with the [default](examples/default) example.
 
-4. Copy all of the Terraform files from your example scenario of choice into a new destination directory to create your root Terraform configuration that will manage your Boundary deployment. If you are not sure where to create this new directory, it is common for us to see users create an `environments/` directory at the root of this repo, and then a subdirectory for each Boundary instance deployment, like so:
+1. Copy all of the Terraform files from your example scenario of choice into a new destination directory to create your root Terraform configuration that will manage your Boundary deployment. If you are not sure where to create this new directory, it is common for us to see users create an `environments/` directory at the root of this repo, and then a subdirectory for each Boundary instance deployment, like so:
 
-```sh
-.
-└── environments
-    ├── production
-    │   ├── backend.tf
-    │   ├── main.tf
-    │   ├── outputs.tf
-    │   ├── terraform.tfvars
-    │   └── variables.tf
-    └── sandbox
-        ├── backend.tf
-        ├── main.tf
-        ├── outputs.tf
-        ├── terraform.tfvars
-        └── variables.tf
-```
+    ```sh
+    .
+    └── environments
+        ├── production
+        │   ├── backend.tf
+        │   ├── main.tf
+        │   ├── outputs.tf
+        │   ├── terraform.tfvars
+        │   └── variables.tf
+        └── sandbox
+            ├── backend.tf
+            ├── main.tf
+            ├── outputs.tf
+            ├── terraform.tfvars
+            └── variables.tf
+    ```
 
-  >📝 Note: in this example, the user will have two separate Boundary deployments; one for their `sandbox` environment, and one for their `production` environment. This is recommended, but not required.
+    >📝 Note: in this example, the user will have two separate Boundary deployments; one for their `sandbox` environment, and one for their `production` environment. This is recommended, but not required.
 
-5. (Optional) Uncomment and update the [gcs remote state backend](https://developer.hashicorp.com/terraform/language/settings/backends/gcs) configuration provided in the `backend.tf` file with your own custom values. While this step is highly recommended, it is technically not required to use a remote backend config for your Boundary deployment.
+1. (Optional) Uncomment and update the [gcs remote state backend](https://developer.hashicorp.com/terraform/language/settings/backends/gcs) configuration provided in the `backend.tf` file with your own custom values. While this step is highly recommended, it is technically not required to use a remote backend config for your Boundary deployment.
 
-6. Populate your own custom values into the `terraform.tfvars.example` file that was provided, and remove the `.example` file extension such that the file is now named `terraform.tfvars`. Ensure to set the `hcp_boundary_cluster_id` variable with the Boundary Cluster ID from step 1.
+1. Populate your own custom values into the `terraform.tfvars.example` file that was provided, and remove the `.example` file extension such that the file is now named `terraform.tfvars`. Ensure to set the `hcp_boundary_cluster_id` variable with the Boundary Cluster ID from step 1.
 
-7. Navigate to the directory of your newly created Terraform configuration for your Boundary Worker deployment, and run `terraform init`, `terraform plan`, and `terraform apply`.
+1. Navigate to the directory of your newly created Terraform configuration for your Boundary Worker deployment, and run `terraform init`, `terraform plan`, and `terraform apply`.
 
-8. After your `terraform apply` finishes successfully, you can monitor the installation progress by connecting to your Boundary VM instance shell via SSH or Google IAP and observing the cloud-init (user_data) logs:
+1. After your `terraform apply` finishes successfully, you can monitor the installation progress by connecting to your Boundary VM instance shell via SSH or Google IAP and observing the cloud-init (user_data) logs:
 
-  Higher-level logs:
+    Higher-level logs:
 
-  ```sh
-  tail -f /var/log/boundary-cloud-init.log
-  ```
+    ```sh
+    tail -f /var/log/boundary-cloud-init.log
+    ```
 
-  Lower-level logs:
+    Lower-level logs:
 
-  ```sh
-  journalctl -xu cloud-final -f
-  ```
+    ```sh
+    journalctl -xu cloud-final -f
+    ```
 
-  >📝 Note: the `-f` argument is to follow the logs as they append in real-time, and is optional. You may remove the `-f` for a static view.
+    >📝 Note: the `-f` argument is to follow the logs as they append in real-time, and is optional. You may remove the `-f` for a static view.
 
-  The log files should display the following message after the cloud-init (user_data) script finishes successfully:
+    The log files should display the following message after the cloud-init (user_data) script finishes successfully:
 
-  ```sh
-  [INFO] boundary_custom_data script finished successfully!
-  ```
+    ```sh
+    [INFO] boundary_custom_data script finished successfully!
+    ```
 
-9.  Once the cloud-init script finishes successfully, while still connected to the VM via SSH you can check the status of the boundary service:
+1. Once the cloud-init script finishes successfully, while still connected to the VM via SSH you can check the status of the boundary service:
 
-   ```sh
-   sudo systemctl status boundary
-   ```
+    ```sh
+    sudo systemctl status boundary
+    ```
 
-10. While still connected to the Boundary Worker, `sudo journalctl -xu boundary` to review the Boundary Logs.
+1. While still connected to the Boundary Worker, `sudo journalctl -xu boundary` to review the Boundary Logs.
 
-11. Copy the `Worker Auth Registration Request` string and paste this into the `Worker Auth Registration Request` field of the new Boundary Worker in the HCP console and click `Register Worker`.
+1. Copy the `Worker Auth Registration Request` string and paste this into the `Worker Auth Registration Request` field of the new Boundary Worker in the HCP console and click `Register Worker`.
 
-12. Worker should show up in HCP Boundary console
+1. Worker should show up in HCP Boundary console
 
 ## Docs
 
 Below are links to docs pages related to deployment customizations and day 2 operations of your Boundary Worker instance.
 
-- [Deployment Customizations](./docs/deployment-customizations.md)
-- [Upgrading Boundary version](./docs/boundary-version-upgrades.md)
-- [Updating/modifying Boundary configuration settings](./docs/boundary-config-settings.md)
+- [Deployment Customizations](https://github.com/hashicorp/terraform-google-boundary-enterprise-worker-hvd/blob/main/docs/deployment-customizations.md)
+- [Upgrading Boundary version](https://github.com/hashicorp/terraform-google-boundary-enterprise-worker-hvd/blob/main/docs/boundary-version-upgrades.md)
+- [Updating/modifying Boundary configuration settings](https://github.com/hashicorp/terraform-google-boundary-enterprise-worker-hvd/blob/main/docs/boundary-config-settings.md)
 
+<!-- BEGIN_TF_DOCS -->
 ## Module support
 
 This open source software is maintained by the HashiCorp Technical Field Organization, independently of our enterprise products. While our Support Engineering team provides dedicated support for our enterprise offerings, this open source software is not included.
@@ -194,7 +196,6 @@ This open source software is maintained by the HashiCorp Technical Field Organiz
 
 Please note that there is no official Service Level Agreement (SLA) for support of this software as a HashiCorp customer. This software falls under the definition of Community Software/Versions in your Agreement. We appreciate your understanding and collaboration in improving our open source projects.
 
-<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -243,11 +244,6 @@ Please note that there is no official Service Level Agreement (SLA) for support 
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_friendly_name_prefix"></a> [friendly\_name\_prefix](#input\_friendly\_name\_prefix) | Friendly name prefix used for uniquely naming resources. This should be unique across all deployments | `string` | n/a | yes |
-| <a name="input_project_id"></a> [project\_id](#input\_project\_id) | ID of GCP Project to create resources in. | `string` | n/a | yes |
-| <a name="input_region"></a> [region](#input\_region) | Region of GCP Project to create resources in. | `string` | n/a | yes |
-| <a name="input_subnet_name"></a> [subnet\_name](#input\_subnet\_name) | Existing VPC subnetwork for Boundary instance(s) and optionally Boundary frontend load balancer. | `string` | n/a | yes |
-| <a name="input_vpc"></a> [vpc](#input\_vpc) | Existing VPC network to deploy Boundary resources into. | `string` | n/a | yes |
 | <a name="input_additional_package_names"></a> [additional\_package\_names](#input\_additional\_package\_names) | List of additional repository package names to install | `set(string)` | `[]` | no |
 | <a name="input_boundary_upstream"></a> [boundary\_upstream](#input\_boundary\_upstream) | List of FQDNs or IP addresses for the worker to connect to. | `list(string)` | `null` | no |
 | <a name="input_boundary_upstream_port"></a> [boundary\_upstream\_port](#input\_boundary\_upstream\_port) | Port for the worker to connect to. | `number` | `9201` | no |
@@ -259,6 +255,7 @@ Please note that there is no official Service Level Agreement (SLA) for support 
 | <a name="input_disk_size_gb"></a> [disk\_size\_gb](#input\_disk\_size\_gb) | Size in Gigabytes of root disk of Boundary instance(s). | `number` | `50` | no |
 | <a name="input_enable_iap"></a> [enable\_iap](#input\_enable\_iap) | (Optional bool) Enable https://cloud.google.com/iap/docs/using-tcp-forwarding#console, defaults to `true`. | `bool` | `true` | no |
 | <a name="input_enable_session_recording"></a> [enable\_session\_recording](#input\_enable\_session\_recording) | Boolean to enable session recording in Boundary. | `bool` | `false` | no |
+| <a name="input_friendly_name_prefix"></a> [friendly\_name\_prefix](#input\_friendly\_name\_prefix) | Friendly name prefix used for uniquely naming resources. This should be unique across all deployments | `string` | n/a | yes |
 | <a name="input_hcp_boundary_cluster_id"></a> [hcp\_boundary\_cluster\_id](#input\_hcp\_boundary\_cluster\_id) | ID of the Boundary cluster in HCP. Only used when using HCP Boundary. | `string` | `null` | no |
 | <a name="input_image_name"></a> [image\_name](#input\_image\_name) | VM image for Boundary instance(s). | `string` | `"ubuntu-2404-noble-amd64-v20240607"` | no |
 | <a name="input_image_project"></a> [image\_project](#input\_image\_project) | ID of project in which the resource belongs. | `string` | `"ubuntu-os-cloud"` | no |
@@ -268,6 +265,10 @@ Please note that there is no official Service Level Agreement (SLA) for support 
 | <a name="input_key_ring_location"></a> [key\_ring\_location](#input\_key\_ring\_location) | Location of KMS key ring. If not set, the region of the Boundary deployment will be used. | `string` | `null` | no |
 | <a name="input_key_ring_name"></a> [key\_ring\_name](#input\_key\_ring\_name) | Name of KMS key ring. | `string` | `null` | no |
 | <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | (Optional string) Size of machine to create. Default `n2-standard-4` from https://cloud.google.com/compute/docs/machine-resource. | `string` | `"n2-standard-4"` | no |
+| <a name="input_project_id"></a> [project\_id](#input\_project\_id) | ID of GCP Project to create resources in. | `string` | n/a | yes |
+| <a name="input_region"></a> [region](#input\_region) | Region of GCP Project to create resources in. | `string` | n/a | yes |
+| <a name="input_subnet_name"></a> [subnet\_name](#input\_subnet\_name) | Existing VPC subnetwork for Boundary instance(s) and optionally Boundary frontend load balancer. | `string` | n/a | yes |
+| <a name="input_vpc"></a> [vpc](#input\_vpc) | Existing VPC network to deploy Boundary resources into. | `string` | n/a | yes |
 | <a name="input_vpc_project_id"></a> [vpc\_project\_id](#input\_vpc\_project\_id) | ID of GCP Project where the existing VPC resides if it is different than the default project. | `string` | `null` | no |
 | <a name="input_worker_is_internal"></a> [worker\_is\_internal](#input\_worker\_is\_internal) | Boolean to create give the worker an internal IP address only or give it an external IP address. | `bool` | `true` | no |
 | <a name="input_worker_tags"></a> [worker\_tags](#input\_worker\_tags) | Map of extra tags to apply to Boundary Worker Configuration. var.common\_labels will be merged with this map. | `map(string)` | `{}` | no |
