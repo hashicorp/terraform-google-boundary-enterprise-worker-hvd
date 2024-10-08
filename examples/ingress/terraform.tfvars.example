@@ -1,0 +1,39 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+# ---Common --- #
+friendly_name_prefix = "<acme-ingress>" #This should be unique across all deployments
+common_labels = {
+  app        = "<boundary-worker>"
+  env        = "<sandbox>"
+  owner      = "<yourname>"
+  workertype = "<ingress>"
+}
+
+# --- prereqs --- #
+project_id = "<project-id>"
+region     = "<us-east1>"
+
+# ---Boundary configuration settings --- #
+boundary_version        = "<0.17.1+ent>"
+boundary_upstream       = [<"10.0.0.5">] #The IP of the Boundary Controller Cluster LB
+boundary_upstream_port  = "<9201>" #Typically 9201 if upstream is Boundary Controller, 9202 if upstream is Worker
+worker_tags = {
+  <bsr> = "<enabled>"
+}
+
+# --- Networking --- #
+vpc                     = "<my-vpc-name>"
+subnet_name             = "<my-subnet-name>"
+cidr_ingress_9202_allow = ["<my-personal-public-ip>", "<other-boundary-workers>"]
+worker_is_internal      = <false>
+create_lb               = <true>
+
+# --- Key Management --- #
+key_ring_name = "<key-ring-containing-worker-key>" 
+key_name      = "<worker-key-name>"
+
+# --- Compute --- #
+enable_iap     = <true>
+instance_count = <1>
+
