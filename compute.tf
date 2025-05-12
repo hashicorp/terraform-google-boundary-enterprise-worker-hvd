@@ -225,13 +225,36 @@ resource "google_compute_firewall" "health_checks" {
     ports    = [9203]
   }
 
-  source_ranges = ["130.211.0.0/22", "35.191.0.0/16", "209.85.152.0/22", "209.85.204.0/22"]
+  source_ranges = ["209.85.152.0/22", "209.85.204.0/22"]
   target_tags   = ["boundary-worker"]
 
   log_config {
     metadata = "INCLUDE_ALL_METADATA"
   }
 }
+
+# Firewall rule for Autohealing
+resource "google_compute_firewall" "health_checks_autohealing" {
+
+  name        = "${var.friendly_name_prefix}-boundary-health-checks-auto-healing-allow"
+  description = "Allow GCP Autohealing Health Check CIDRs to talk to Boundary in ${data.google_compute_network.vpc.name}."
+  network     = data.google_compute_network.vpc.self_link
+  direction   = "INGRESS"
+
+  allow {
+    protocol = "tcp"
+    ports    = [9203]
+  }
+
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
+  target_tags   = ["boundary-worker"]
+
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+}
+
+
 
 # ------------------------------------------------------------------------------
 # Debug rendered boundary custom_data script from template
