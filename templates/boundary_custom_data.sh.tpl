@@ -142,17 +142,17 @@ function generate_boundary_config {
   cat >$BOUNDARY_CONFIG_PATH <<EOF
 
 "worker" {
-	public_addr = "$addr" 
+	public_addr = "$addr"
 %{ if hcp_boundary_cluster_id == "" ~}
-	name = "$host"
   initial_upstreams = [
 %{ for ip in formatlist("%s",boundary_upstream) ~}
   "${ip}:${boundary_upstream_port}",
 %{ endfor ~}
   ]
-%{ else ~}
-  auth_storage_path = "$BOUNDARY_DIR_DATA"
 %{ endif ~}
+  # Auth storage backend is always required
+  auth_storage_path = "$BOUNDARY_DIR_DATA"
+
 
 %{ if enable_session_recording ~}
   recording_storage_path="$BOUNDARY_DIR_BSR"
