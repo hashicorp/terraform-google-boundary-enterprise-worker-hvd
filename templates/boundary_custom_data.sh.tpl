@@ -180,19 +180,24 @@ function checksum_verify {
 
 }
 
-# # install_boundary_binary downloads the Boundary binary and puts it in dedicated bin directory
-# function install_boundary_binary {
-#   log "[INFO]" "Installing Boundary binary to: $BOUNDARY_DIR_BIN..."
+# install_boundary_binary downloads the boundary binary and puts it in dedicated bin directory
+function install_boundary_binary {
+  local OS_ARCH="$1"
 
-#   # Download the Boundary binary to the dedicated bin directory
-#   sudo curl -so $BOUNDARY_DIR_BIN/boundary.zip $BOUNDARY_INSTALL_URL
+	log "INFO" "Deploying Boundary binary to $BOUNDARY_DIR_BIN unzip and set permissions"
+	sudo unzip "$${PRODUCT}"_"$${BOUNDARY_VERSION}"_"$${OS_ARCH}".zip  boundary -d $BOUNDARY_DIR_BIN
+	sudo unzip "$${PRODUCT}"_"$${BOUNDARY_VERSION}"_"$${OS_ARCH}".zip -x boundary -d $BOUNDARY_DIR_LICENSE
+	sudo rm -f "$${PRODUCT}"_"$${BOUNDARY_VERSION}"_"$${OS_ARCH}".zip
 
-#   # Unzip the Boundary binary
-#   sudo unzip $BOUNDARY_DIR_BIN/boundary.zip boundary -d $BOUNDARY_DIR_BIN
-#   sudo rm $BOUNDARY_DIR_BIN/boundary.zip
+	# Set the permissions for the Boundary binary
+	sudo chmod 0755 $BOUNDARY_DIR_BIN/boundary
+	sudo chown $BOUNDARY_USER:$BOUNDARY_GROUP $BOUNDARY_DIR_BIN/boundary
 
-#   log "[INFO]" "Done installing Boundary binary."
-# }
+	# Create a symlink to the Boundary binary in /usr/local/bin
+	sudo ln -sf $BOUNDARY_DIR_BIN/boundary /usr/local/bin/boundary
+
+	log "INFO" "Boundary binary installed successfully at $BOUNDARY_DIR_BIN/boundary"
+}
 
 function generate_boundary_config {
   log "[INFO]" "Generating $BOUNDARY_CONFIG_PATH file."
@@ -337,7 +342,9 @@ function main {
 	checksum_verify $OS_ARCH
 	log "INFO" "Checksum verification completed for Vault binary."
 
-  generate_boundary_config
+  install_boundary_binary $OS_ARCH
+
+	generate_boundary_config
   template_boundary_systemd
   start_enable_boundary
 
