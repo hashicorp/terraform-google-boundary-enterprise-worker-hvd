@@ -31,7 +31,6 @@ locals {
     boundary_dir_bin         = "/usr/bin",
     boundary_dir_config      = "/etc/boundary.d",
     boundary_dir_home        = "/opt/boundary",
-    boundary_install_url     = format("https://releases.hashicorp.com/boundary/%s/boundary_%s_linux_amd64.zip", var.boundary_version, var.boundary_version), boundary_upstream = var.boundary_upstream
     boundary_upstream_port   = var.boundary_upstream_port
     hcp_boundary_cluster_id  = var.hcp_boundary_cluster_id != null ? var.hcp_boundary_cluster_id : ""
     worker_is_internal       = var.worker_is_internal

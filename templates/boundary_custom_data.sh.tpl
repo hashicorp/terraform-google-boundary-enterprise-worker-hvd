@@ -11,7 +11,9 @@ BOUNDARY_DIR_LOGS="/var/log/boundary"
 BOUNDARY_DIR_BIN="${boundary_dir_bin}"
 BOUNDARY_USER="boundary"
 BOUNDARY_GROUP="boundary"
-BOUNDARY_INSTALL_URL="${boundary_install_url}"
+PRODUCT="boundary"
+BOUNDARY_VERSION="${boundary_version}"
+VERSION=$BOUNDARY_VERSION
 REQUIRED_PACKAGES="jq unzip"
 ADDITIONAL_PACKAGES="${additional_package_names}"
 
@@ -114,19 +116,20 @@ function directory_create {
   log "[INFO]" "Done creating necessary directories."
 }
 
-# install_boundary_binary downloads the Boundary binary and puts it in dedicated bin directory
-function install_boundary_binary {
-  log "[INFO]" "Installing Boundary binary to: $BOUNDARY_DIR_BIN..."
+# # install_boundary_binary downloads the Boundary binary and puts it in dedicated bin directory
+# function install_boundary_binary {
+#   log "[INFO]" "Installing Boundary binary to: $BOUNDARY_DIR_BIN..."
 
-  # Download the Boundary binary to the dedicated bin directory
-  sudo curl -so $BOUNDARY_DIR_BIN/boundary.zip $BOUNDARY_INSTALL_URL
+#   # Download the Boundary binary to the dedicated bin directory
+#   sudo curl -so $BOUNDARY_DIR_BIN/boundary.zip $BOUNDARY_INSTALL_URL
 
-  # Unzip the Boundary binary
-  sudo unzip $BOUNDARY_DIR_BIN/boundary.zip boundary -d $BOUNDARY_DIR_BIN
-  sudo rm $BOUNDARY_DIR_BIN/boundary.zip
+#   # Unzip the Boundary binary
+#   sudo unzip $BOUNDARY_DIR_BIN/boundary.zip boundary -d $BOUNDARY_DIR_BIN
+#   sudo rm $BOUNDARY_DIR_BIN/boundary.zip
 
-  log "[INFO]" "Done installing Boundary binary."
-}
+#   log "[INFO]" "Done installing Boundary binary."
+# }
+
 function generate_boundary_config {
   log "[INFO]" "Generating $BOUNDARY_CONFIG_PATH file."
 
