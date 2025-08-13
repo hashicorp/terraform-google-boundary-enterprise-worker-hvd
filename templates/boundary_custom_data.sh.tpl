@@ -6,6 +6,7 @@ SYSTEMD_DIR="${systemd_dir}"
 BOUNDARY_DIR_CONFIG="${boundary_dir_config}"
 BOUNDARY_CONFIG_PATH="$BOUNDARY_DIR_CONFIG/worker.hcl"
 BOUNDARY_DIR_DATA="${boundary_dir_home}/data"
+BOUNDARY_DIR_LICENSE="${boundary_dir_home}/license"
 BOUNDARY_DIR_BSR="${boundary_dir_home}/bsr"
 BOUNDARY_DIR_LOGS="/var/log/boundary"
 BOUNDARY_DIR_BIN="${boundary_dir_bin}"
@@ -125,7 +126,7 @@ function directory_create {
   log "[INFO]" "Creating necessary directories..."
 
   # Define all directories needed as an array
-  directories=($BOUNDARY_DIR_CONFIG $BOUNDARY_DIR_DATA $BOUNDARY_DIR_LOGS $BOUNDARY_DIR_BSR)
+  directories=($BOUNDARY_DIR_CONFIG $BOUNDARY_DIR_DATA $BOUNDARY_DIR_LOGS $BOUNDARY_DIR_BSR $BOUNDARY_DIR_LICENSE)
 
   # Loop through each item in the array; create the directory and configure permissions
   for directory in "$${directories[@]}"; do
