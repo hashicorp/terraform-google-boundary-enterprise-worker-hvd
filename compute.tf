@@ -32,6 +32,7 @@ locals {
     boundary_dir_config      = "/etc/boundary.d",
     boundary_dir_home        = "/opt/boundary",
     boundary_upstream_port   = var.boundary_upstream_port
+    boundary_upstream        = var.boundary_upstream
     hcp_boundary_cluster_id  = var.hcp_boundary_cluster_id != null ? var.hcp_boundary_cluster_id : ""
     worker_is_internal       = var.worker_is_internal
     enable_session_recording = var.enable_session_recording
