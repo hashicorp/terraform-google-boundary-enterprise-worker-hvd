@@ -20,6 +20,7 @@ data "google_compute_network" "vpc" {
 # User Data (cloud-init) arguments
 #-----------------------------------------------------------------------------------
 locals {
+  custom_user_data_template = fileexists("${path.cwd}/templates/${var.custom_user_data_template}") ? "${path.cwd}/templates/${var.custom_user_data_template}" : "${path.module}/templates/${var.custom_user_data_template}"
   custom_data_args = {
 
     # https://developer.hashicorp.com/boundary/docs/configuration/worker
@@ -53,7 +54,7 @@ data "cloudinit_config" "boundary_cloudinit" {
   part {
     filename     = "boundary_custom_data.sh"
     content_type = "text/x-shellscript"
-    content      = templatefile("${path.module}/templates/boundary_custom_data.sh.tpl", local.custom_data_args)
+    content      = templatefile(local.custom_user_data_template, local.custom_data_args)
   }
 }
 
