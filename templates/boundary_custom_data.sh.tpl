@@ -341,7 +341,7 @@ function main {
   directory_create
 
 	checksum_verify $OS_ARCH
-	log "INFO" "Checksum verification completed for Vault binary."
+	log "INFO" "Checksum verification completed for Boundary binary."
 
   install_boundary_binary $OS_ARCH
 
