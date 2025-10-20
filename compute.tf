@@ -20,6 +20,7 @@ data "google_compute_network" "vpc" {
 # User Data (cloud-init) arguments
 #-----------------------------------------------------------------------------------
 locals {
+  custom_user_data_template = fileexists("${path.cwd}/templates/${var.custom_user_data_template}") ? "${path.cwd}/templates/${var.custom_user_data_template}" : "${path.module}/templates/${var.custom_user_data_template}"
   custom_data_args = {
 
     # https://developer.hashicorp.com/boundary/docs/configuration/worker
@@ -30,8 +31,8 @@ locals {
     boundary_dir_bin         = "/usr/bin",
     boundary_dir_config      = "/etc/boundary.d",
     boundary_dir_home        = "/opt/boundary",
-    boundary_install_url     = format("https://releases.hashicorp.com/boundary/%s/boundary_%s_linux_amd64.zip", var.boundary_version, var.boundary_version), boundary_upstream = var.boundary_upstream
     boundary_upstream_port   = var.boundary_upstream_port
+    boundary_upstream        = var.boundary_upstream
     hcp_boundary_cluster_id  = var.hcp_boundary_cluster_id != null ? var.hcp_boundary_cluster_id : ""
     worker_is_internal       = var.worker_is_internal
     enable_session_recording = var.enable_session_recording
@@ -53,7 +54,7 @@ data "cloudinit_config" "boundary_cloudinit" {
   part {
     filename     = "boundary_custom_data.sh"
     content_type = "text/x-shellscript"
-    content      = templatefile("${path.module}/templates/boundary_custom_data.sh.tpl", local.custom_data_args)
+    content      = templatefile(local.custom_user_data_template, local.custom_data_args)
   }
 }
 
