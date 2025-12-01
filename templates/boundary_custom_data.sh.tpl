@@ -107,6 +107,8 @@ function scrape_vm_info {
   log "[INFO]" "Scraping VM metadata for private IP address..."
   VM_PRIVATE_IP=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
   VM_PUBLIC_IP=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip)
+  VM_NAME=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/name)
+  log "[INFO]" "Detected VM name is '$VM_NAME'."
   log "[INFO]" "Detected VM private IP address is '$VM_PRIVATE_IP'."
 }
 
@@ -224,15 +226,21 @@ function generate_boundary_config {
 %{ endfor ~}
   ]
 %{ endif ~}
-  # Auth storage backend is always required
-  auth_storage_path = "$BOUNDARY_DIR_DATA"
 
+%{ if worker_key_ring_name != "" ~}
+  # Name is mandatory for worker KMS auth
+  name = "$VM_NAME"
+%{ else ~}
+  # Auth storage backend is always required unless it's KMS auth
+  auth_storage_path = "$BOUNDARY_DIR_DATA"
+%{ endif ~}
 
 %{ if enable_session_recording ~}
   recording_storage_path="$BOUNDARY_DIR_BSR"
   recording_storage_minimum_available_capacity="500MB"
 %{ endif ~}
   tags ${worker_tags}
+
 }
 
 %{ if hcp_boundary_cluster_id != "" ~}
